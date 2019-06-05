@@ -306,8 +306,11 @@ declare module mh{
 		 * @param {*} saved 是否存储
 		 * @param {*} callFunc 成功回调（一般不用，建议使用事件通知）
 		 */
-		loadItem(url:string,assetType:cc.Asset,eventName:string,saved:boolen = true,callFunc:Function = null)
+		loadItem(url:string,assetType:cc.Asset,eventName:string,saved:boolen = true,callFunc:Function = null):void;
+	}
 
 	var res : RES;
+	var http : HttpServer;
+	var platformManager : PlatformManager;
 	
 }
