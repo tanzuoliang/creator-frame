@@ -113,9 +113,8 @@ class __R__{
     }
 
     /**
-     * static loadResDir(url: string, type: typeof cc.Asset, 
-     * progressCallback: (completedCount: number, totalCount: number, item: any) => void, 
-     * completeCallback: ((error: Error, resource: any[], urls: string[]) => void)|null): void;
+     * 加载单个文件夹
+     * @param {*} loadItem 
      */
     preloadDir(loadItem){
         switch(loadItem.type){
@@ -346,7 +345,8 @@ class __R__{
                 this.___loadSignalItem___(url,assetType,resource => {
                     resultResource = resource;
                     if(resultResource){
-                        eventName && cc.director.emit(eventName,resource);
+                        eventName = eventName || key;
+                        cc.director.emit(eventName,resource);
                         saved && store && store.setItem(baseResName,resource);
                         // callFunc && callFunc(resultResource);
                         callList.length > 0 && callList.forEach( func => func(resultResource));
@@ -541,6 +541,18 @@ cc.Sprite.prototype.useSpriteFrame = function (url,assetType = cc.SpriteFrame,is
 __R__.prototype.LOADING = "__res__loading__";
 __R__.prototype.COMPLETE = "__res_load_complete__";
 
+/**
+ * 
+ */
+__R__.prototype.switchScene = function(name,callFunc = null){
+    cc.director.preloadScene(name,err => {
+        if(err){
+            this.switchScene(name,enterAfterLoaded);
+        }else{
+            callFunc && callFunc();
+        }
+    });
+}
 
 const RES = new __R__();
 

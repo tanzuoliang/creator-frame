@@ -262,6 +262,52 @@ declare module mh{
 		backModuleName : string;
 	}
 	
+	class ResItem{
+		url : string;
+		type : number;
+	}
 	
+	class RES{
+		switchScene(name:string,enterAfterLoaded:boolean = true,showLoading:boolean = false):void;
+		
+		set defaultPreloadResources(list : ResItem[]):void;
+		get defaultPreloadResources():ResItem[];
+		
+		/**
+		 * 预加载基础资源(文件夹)
+		 * @param {*} resources [{url,type : [1,2,3]}]
+		 */
+		preloadResources(list : ResItem[]):void;
+		unload(list : ResItem[]):void;
+		
+		/**
+		 * 加载模块需要资源
+		 * @param {*} resources [{url,type:[cc.SpriteFrame]}]
+		 */
+		preloadModuleResource(list : ResItem[]):void;
+		
+		/**
+		 * 删除模块资源
+		 */
+		unloadModuleResource():void;
+		
+		/**
+		 * 获取资源
+		 * @param {*} url 资源路径
+		 * @param {*} assetType 资源类型
+		 */
+		getItem(url:string,assetType:number):cc.Asset;
+		
+		/**
+		 * 
+		 * @param {*} url 资源路径
+		 * @param {*} assetType 资源类型
+		 * @param {*} eventName 成功事件名
+		 * @param {*} saved 是否存储
+		 * @param {*} callFunc 成功回调（一般不用，建议使用事件通知）
+		 */
+		loadItem(url:string,assetType:cc.Asset,eventName:string,saved:boolen = true,callFunc:Function = null)
+
+	var res : RES;
 	
 }
