@@ -49,7 +49,7 @@ class BaseScrollView extends require("./Group"){
 
         this._maxCol = Math.floor(this.scrollView.node.width / this.itemWidth);
         let dataTotalRows = Math.ceil(this.__datas__.length / this._maxCol);
-        this._maxRow =  Math.min( Math.floor(this.scrollView.node.height / this.itemHeight) + 2 , dataTotalRows );
+        this._maxRow =  Math.min( Math.floor(this.scrollView.node.height / this.itemHeight) + 1 , dataTotalRows );
         this.scrollView.content.height = dataTotalRows * this.itemHeight;
         console.log(`------ dataTotalRows = ${dataTotalRows}  height = ${dataTotalRows * this.itemHeight}`);
 

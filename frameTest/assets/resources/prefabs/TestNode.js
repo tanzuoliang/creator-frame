@@ -6,6 +6,8 @@
 
 const {ccclass,property} = cc._decorator;
 
+let testCount = 0;
+
 @ccclass
 class NewClass extends require("./../../scripts/core/bundle/BaseListItem"){
 
@@ -14,6 +16,8 @@ class NewClass extends require("./../../scripts/core/bundle/BaseListItem"){
 
     constructor(){
         super();
+        testCount++;
+        console.log("---- item instance is " + testCount);
     }
 
     //onLoad(){}
