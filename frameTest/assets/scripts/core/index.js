@@ -72,12 +72,16 @@ class ViewImp{
         return node;
     }
 
+    get uiCOntainer(){return this.__uiContainer__;}
+    get panelContainer(){return this.__panelContainer__;}
+    get alertContainer(){return this.__alertContainer__;}
+
     init(){
         let container = cc.find("Canvas");
         this.modueContainer = this.createContainer(container);
-        this.uiContainer = this.createContainer(container);
-        this.panelContainer = this.createContainer(container);
-        this.alertContainer = this.createContainer(container);
+        this.__uiContainer__ = this.createContainer(container);
+        this.__panelContainer__ = this.createContainer(container);
+        this.__alertContainer__ = this.createContainer(container);
 
         console.log("------ init scene -----");
     }
@@ -130,15 +134,15 @@ class ViewImp{
 
         switch(viewType){
             case ViewType.UI:
-                view.parent = this.uiContainer;
+                view.parent = this.__uiContainer__;
             break;
 
             case ViewType.PANEL:
-                view.parent = this.panelContainer;
+                view.parent = this.__panelContainer__;
             break;
 
             case ViewType.ALERT:
-                view.parent = this.alertContainer;
+                view.parent = this.__alertContainer__;
             break;
         }
     }

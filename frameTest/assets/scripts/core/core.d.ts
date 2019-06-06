@@ -24,6 +24,9 @@ declare module mh{
 		removeView(view:cc.Node):void;
 		removeAllViews():void;
 		removeCertainViewsByFlag(flag:int):void;
+		get uiCOntainer():cc.Node;
+		get panelContainer():cc.Node;
+		get alertContainer():cc.Node;
 	}
 	
 	export var viewImp : ViewImp;
