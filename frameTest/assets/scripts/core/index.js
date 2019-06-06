@@ -78,6 +78,8 @@ class ViewImp{
         this.uiContainer = this.createContainer(container);
         this.panelContainer = this.createContainer(container);
         this.alertContainer = this.createContainer(container);
+
+        console.log("------ init scene -----");
     }
 
     /**
@@ -239,6 +241,7 @@ class ModuleStack{
     constructor(){
         this.__stack__ = [];
         this.__lastPanelName__ = null;
+        this.__lastView__ = null;
     }
 
     /**
@@ -260,6 +263,7 @@ class ModuleStack{
             }
         }
 
+        this.__lastView__ = view;
         return view;
     }
 
@@ -278,6 +282,9 @@ class ModuleStack{
 
         if(this.__lastPanelName__){
             view = viewImp.showView(this.__lastPanelName__);
+        }else{
+            this.__lastView__ && viewImp.removeView(this.__lastView__);
+            this.__lastView__ = null;
         }
 
         return view;
@@ -332,7 +339,6 @@ function signaletion(cls){
 
 }
 
-
 let out = {
     ViewType,
     ViewMode,
@@ -343,7 +349,6 @@ let out = {
     BaseScene,
     signaletion,
     http : require("./bundle/HTTP"),
-    BaseLoading : require("./bundle/Loading"),
     res : require("./bundle/Res"),
     BaseLayout : require("./bundle/BaseLayout"),
     BaseListItem : require("./bundle/BaseListItem"),
@@ -351,17 +356,21 @@ let out = {
     Group : require("./bundle/Group"),
 }
 
+window.mh = out;
+
 function add(out,resource){
     for(let key in resource){
         out[key] = resource[key];
     }
 }
 
+out.BaseLoading = require("./bundle/Loading");
+
 add(out,require("./bundle/MVC"));
 add(out,require("./bundle/PlatformManager"));
-add(out,require("./bundle/BaseModule"))
-add(out,require("./bundle/BasePanel"))
+add(out,require("./bundle/BaseModule"));
+add(out,require("./bundle/BasePanel"));
 
 
-window.mh = out;
+// window.mh = out;
 module.exports = mh;

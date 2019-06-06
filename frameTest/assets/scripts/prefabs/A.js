@@ -15,13 +15,15 @@ class A extends mh.BaseComponent{
     constructor(){
         super();
         this.viewFlag = 2 << 1;
-        console.log("----------- A --");
+        
     }
 
-    //onLoad(){}
+    onLoad(){
+        console.log("----------- A onLoad--");
+    }
     
     start(){
-        
+        console.log("----------- A onstart--");
     }
 
     //update(dt){}

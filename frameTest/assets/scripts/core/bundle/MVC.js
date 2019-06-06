@@ -80,12 +80,19 @@ class BaseModel extends Signaleton{
 
 
 class BaseMediator extends Publish{
-    constructor(model,node){
+    constructor(model,view){
         super();
         this.model = model;
-        this.node = node;
-        this.node.mediator = this;
+        this.view = view;
+        this.view.mediator = this;
         this.__evenMap__ = {};
+    }
+
+    /**
+     * view 预制体准备好了
+     */
+    onViewReady(){
+
     }
 
     /**
@@ -101,6 +108,21 @@ class BaseMediator extends Publish{
     }
 
     onMessage(event,...param){
+
+    }
+
+    guiEvents(eventList){
+        eventList.forEach(evt => {
+            this.view.node.on(evt,(...param) => this.onGUI(evt,...param),this)
+        });
+    }
+
+    /**
+     * UI 事件
+     * @param {*} event 
+     * @param  {...any} param 
+     */
+    onGUI(event,...param){
 
     }
 
@@ -122,7 +144,7 @@ class BaseMediator extends Publish{
      */
     destroy(){
         this.unsubscribe();
-        this.node = null;
+        this.view = null;
         this.model = null;
         console.log(`------ BaseMediator Destroy -----`);
     }
@@ -141,6 +163,11 @@ class BaseComponent extends cc.Component{
         this.___currentTouchLocation___ = null;
         this.__validTouchDistance__ = 10;
     }
+
+    onLoad(){
+        this.mediator && this.mediator.onViewReady();
+    }
+
     registerTouch(node,dis = 10){
         this.__touchNode__ = node;
         this.__touchNode__.on(cc.Node.EventType.TOUCH_START,this.___touchStart___,this);

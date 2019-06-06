@@ -88,7 +88,7 @@ class BaseScrollView extends require("./Group"){
             return;
         }
         node.active = true;
-        node.getComponent(this.itemScript).setData(this.__datas__[index]);
+        node.getComponent(this.itemScript).setData(this.__datas__[index],index);
     }
 
     onScrolling(event){

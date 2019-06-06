@@ -63,11 +63,18 @@ class NewClass extends mh.BaseLoading{
     }
 
     loadAllComplete(){
+        super.loadAllComplete();
         let co = cc.find("Canvas");
         let node = cc.instantiate(mh.res.getItem("testNode",cc.Prefab));
         node.x = -40;
         node.parent = co;
         node.zIndex = 2;
+
+        node.on("test",() => console.log("test info"),this);
+        setTimeout(() => node.emit("test"),1000);
+        setTimeout(() => node.destroy(),2000);
+        setTimeout(() => node.emit("test"),3000);
+
         let s = new cc.Node();
         s.addComponent(cc.Sprite);
         if (s) {

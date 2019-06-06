@@ -8,7 +8,7 @@ const {ccclass, property} = cc._decorator;
 const {BaseComponent} = require("./MVC");
 const BaseListItem = require("./BaseListItem"); 
 @ccclass
-class NewClass extends BaseComponent{
+class Group extends BaseComponent{
 
     @property(cc.Prefab)
     itemPrefab = null;
@@ -29,12 +29,22 @@ class NewClass extends BaseComponent{
         this.__selectItem__ = null;
     }
 
+    /**
+     * 当前选择的预制体脚本
+     */
     get selectedItem(){return this.__selectItem__;}
 
+    /**
+     * 数据
+     * @param {*} datas 
+     */
     setData(datas){
         this.__datas__ = datas;
     }
 
+    /**
+     * 当前选择的ITEM索引
+     */
     set selectedIndex(index){
         this.__selectIndex__ = index;
     }
@@ -50,6 +60,7 @@ class NewClass extends BaseComponent{
             this.__selectIndex__ = index;
             this.__selectItem__ = bindScript;
             this.__selectItem__.onselected();
+            this.node.emit("select");
         }
     }
 
@@ -63,4 +74,4 @@ class NewClass extends BaseComponent{
 
 }
 
-module.exports = NewClass;
+module.exports = Group;

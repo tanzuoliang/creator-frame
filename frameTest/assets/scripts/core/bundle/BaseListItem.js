@@ -10,6 +10,7 @@ class BaseListItem extends BaseComponent{
         super();
         this.__selectd__ = false;
         this.__data__ = null;
+        this._index = -1;
     }
 
     set selected(value){
@@ -19,7 +20,17 @@ class BaseListItem extends BaseComponent{
 
     get selected(){return this.__selectd__;}
 
-    setData(data){this.__data__ = data;}
+
+    set index(v){this._index = v;}
+    get index(){return this._index;}
+
+    /**
+     * 
+     * @param {*} data 
+     * @param {*} index 索引
+     */
+    setData(data,index){this.__data__ = data;this._index = index;}
+    getData(){return this.__data__};
 
     /**
      * 选中状态

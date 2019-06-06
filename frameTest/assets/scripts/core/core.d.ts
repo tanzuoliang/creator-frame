@@ -45,15 +45,15 @@ declare module mh{
 		 * @param {*} keepPath 是否保存回退路径
 		 */
 		show(name:string,keepPath:boolen = false):void;
-		bakc():cc.Node;
+		back():cc.Node;
 		clean():void;
 	}
 	
 	var moduleStack : ModuleStack;
 	
 	abstract class BaseScene{
+		constructor(sceneName:string):void;
 		__sceneName__:string;
-		
 		start():void;
 	}
 	
@@ -92,6 +92,7 @@ declare module mh{
 	}
 	
 	class BaseModel{
+		constructor(module:string):void;
 		module:string;
 		/**
 		 * 
@@ -115,12 +116,27 @@ declare module mh{
 	}
 	
 	class BaseMediator{
+
+		constructor(model:BaseModel,view:cc.Component):void;
+		/**
+		 * view 预制体准备好了
+		 */
+		onViewReady():void;
+		
 		/**
 		 * 订阅事件
 		 * @param {*} eventList 事件列表
 		 */
-		subscribe(eventList:Array):void;
+		subscribe(eventList:string[]):void;
 		onMessage(event:string,...param):void;
+
+		guiEvents(eventList:string[]):void;
+		/**
+     * UI 事件
+     * @param {*} event 
+     * @param  {...any} param 
+     */
+		onGUI(event:string,...param: any[]):void;
 		/**
 		 * 取消订阅
 		 */
@@ -132,8 +148,9 @@ declare module mh{
 		destroy():void;
 	}
 	
-	class BaseComponent{
+	class BaseComponent extends cc.Component{
 		registerTouch(node:cc.Node,dis:number = 10):void;
+		onLoad():void;
 	}
 	
 	class PlatformConfig{
@@ -229,7 +246,7 @@ declare module mh{
 		isAndroid():boolen;
 	}
 	
-	abstract class BaseLoading{
+	abstract class BaseLoading extends BaseScene{
 		setHost(url:string):void;
 		start():void;
 		loadResources():void;
@@ -244,6 +261,7 @@ declare module mh{
 	export function showToast(title:string,icon:string ="none",duration:number = 2000):void;
 	export function showLoading(title:string):void;
 	export function hideLoading():void;
+	export function setHost(url:string):void;
 	
 	
 	abstract class BasePanel{
@@ -268,6 +286,8 @@ declare module mh{
 	}
 	
 	class RES{
+		LOADING :string;
+		COMPLETE :string;
 		switchScene(name:string,enterAfterLoaded:boolean = true,showLoading:boolean = false):void;
 		
 		set defaultPreloadResources(list : ResItem[]):void;
@@ -309,8 +329,59 @@ declare module mh{
 		loadItem(url:string,assetType:cc.Asset,eventName:string,saved:boolen = true,callFunc:Function = null):void;
 	}
 
+
+	class BaseScrollView extends Group{
+		setData(datas:any[],itemWidth:number,itemHeight:number,anchorX:number,anchorY:number):void;
+	}
+
+
+	class Group extends BaseComponent{
+		itemPrefab : cc.Prefab;
+		//预制体脚本名字
+		itemScript : string;
+		
+		/**
+		 * 当前选择的预制体脚本
+		 */
+		get selectedItem():cc.Asset;
+		
+		/**
+		 * 数据
+		 * @param {*} datas 
+		 */
+		setData(datas:any[]):void;
+		
+		/**
+		 * 当前选择的ITEM索引
+		 */
+		set selectedIndex(index:number):void;
+		get selectedIndex():number;
+	}
+	
+	class BaseListItem{
+		/**
+		 * 
+		 * @param {*} data 
+		 * @param {*} index 索引
+		 */
+		setData(data:any,index:number):void;
+		getData():any;
+		
+		set selected(value:boolen):void;
+		get selected():boolen;
+		/**
+		 * 选中状态
+		 */
+		onselected():void;
+		/**
+		 * 未选中状态
+		 */
+		onunselected():void;
+	}
+
 	var res : RES;
 	var http : HttpServer;
 	var platformManager : PlatformManager;
+	
 	
 }

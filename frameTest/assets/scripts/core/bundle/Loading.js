@@ -1,78 +1,27 @@
 
-const RES = require("./Res");
-const http = require("./HTTP");
-const {platformManager,PlatformConfig,showToast,setHost,PLATFORM} = require("./PlatformManager"); 
+
 const {ccclass, property} = cc._decorator;
-const {BaseComponent} = require("./MVC");
-/** eg
-cc.Class({
-    extends : BaseLaoding,
-    properties : {
-
-    },
-
-    onLoad(){
-        let devModel = "dev";  //dev  t0  t1
-        let is_online = false;
-        let HOST = "http://192.168.0.240:9381";
-        if(is_online){
-            HOST = "https://www.miaohe-game.com/climb"
-            //HOST = "https://www.miaohe-game.com/climb"
-        }
-
-        let HOST = "http://192.168.0.240:9381";
-        if(devModel == "t0"){
-            HOST = "https://www.miaohe-game.com/climb"
-        }else if(devModel == "t1"){
-            HOST = "https://www.kaifu2.com/climb"
-        }
-
-        this.setHost(HOST);
-        this.nextSceneName = "";
-    },
-
-    updatePercent(per){
-
-    },
-
-    //拿到登入数据
-    loginResponse(res){
-
-    },
-
-    //填充配置
-    fillPlatformConfig(config){
-        config.version = "1.0.0";
-        config.btnUrl = "res/raw-assets/67/67fba375-efa1-478d-ada7-20c104e2ec32.png"
-        config.top = 0.75;//高度百分比
-        config.width = 214;//按钮大小，按自己的来
-        config.height = 72;
-        //默认转发数据
-        config.shareList = [{
-            title : "疯狂虫子，你能爬多高，等着你来挑战",
-            image : "https://public-1258584527.file.myqcloud.com/share/climb/2004.jpg"
-        }];
-    }    
-})
-**/
-
+require("./../index");
 @ccclass
-class BaseLoading extends BaseComponent{
+class BaseLoading extends mh.BaseScene{
     constructor(){
         super();
         this.totalRes = 0;
         this.loadedRes = 0;
         this.nextSceneName = null;
-        this.platformFlag = PLATFORM.WX;
+        this.platformFlag = mh.PLATFORM.WX;
     }
 
     setHost(host){
-        http.setRoot(host);
-        setHost(host);
+        mh.http.setRoot(host);
+        mh.setHost(host);
     }
 
+    isCheckUpdate(){return cc.sys.platform == cc.sys.WECHAT_GAME && this.platformFlag == mh.PLATFORM.WX};
+
     start(){
-        if(cc.sys.platform == cc.sys.WECHAT_GAME && this.platformFlag == PLATFORM.WX){
+        super.start();
+        if(this.isCheckUpdate()){
 
             const updateManager = wx.getUpdateManager();
             updateManager.onCheckForUpdate( res => {
@@ -99,7 +48,7 @@ class BaseLoading extends BaseComponent{
     }
 
     loadResources(){
-        let config  = new PlatformConfig();
+        let config  = new mh.PlatformConfig();
         this.fillPlatformConfig(config);
         config.loginRes = (res) => {
             config.shareList = res.data.shares;
@@ -115,9 +64,9 @@ class BaseLoading extends BaseComponent{
 //-------------------------------------------- 
     execLoad(){
         console.log("----- exec ----- ");
-        cc.director.on(RES.LOADING,this.updatePercent,this);
-        cc.director.on(RES.COMPLETE,this.loadAllComplete,this);
-        RES.preloadResources(RES.defaultPreloadResources);
+        cc.director.on(mh.res.LOADING,this.updatePercent,this);
+        cc.director.on(mh.res.COMPLETE,this.loadAllComplete,this);
+        mh.res.preloadResources(mh.res.defaultPreloadResources);
     }
 
     loadAllComplete(){
@@ -131,8 +80,8 @@ class BaseLoading extends BaseComponent{
 
     onDestroy(){
         super.onDestroy();
-        cc.director.off(RES.LOADING,this.updatePercent,this);
-        cc.director.off(RES.COMPLETE,this.loadAllComplete,this);
+        cc.director.off(mh.res.LOADING,this.updatePercent,this);
+        cc.director.off(mh.res.COMPLETE,this.loadAllComplete,this);
     }
 
 //---------------------------------
