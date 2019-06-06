@@ -67,18 +67,18 @@ class NewClass extends mh.BaseLoading{
         let co = cc.find("Canvas");
         let node = cc.instantiate(mh.res.getItem("testNode",cc.Prefab));
         node.x = -40;
-        node.parent = co;
+        node.parent = mh.viewImp.alertContainer;
         node.zIndex = 2;
 
         node.on("test",() => console.log("test info"),this);
         setTimeout(() => node.emit("test"),1000);
-        setTimeout(() => node.destroy(),2000);
+        // setTimeout(() => node.destroy(),2000);
         setTimeout(() => node.emit("test"),3000);
 
         let s = new cc.Node();
         s.addComponent(cc.Sprite);
         if (s) {
-            s.parent = co;
+            s.parent = mh.viewImp.uiCOntainer;
             s.zIndex = 1;
             s.color = new cc.Color(255, 255, 0);
             s.getComponent(cc.Sprite).useRemote("https://wx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTJMlgrlicZmcoFqd9UEBfxA0Vg3304CsiclHPJG6p66Cw2CmBV9wv9uG5hRx91jItP9tZQZmibEEU3wg/132");

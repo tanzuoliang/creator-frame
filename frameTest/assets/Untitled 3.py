@@ -10,7 +10,7 @@ fr = "./scripts/core"
 project = "/Users/apple/Documents/projects/baseFrameworke"
 to = os.path.join(project,"scripts")
 
-for item in ["GameInit.js","Preload.js"]:
+for item in ["GameInit.js","Preload.js","core/core.d.ts"]:
 	copyFile(os.path.join("./scripts",item), os.path.join(to, item))
 
 to = os.path.join(to,"core")

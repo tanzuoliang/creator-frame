@@ -7,7 +7,7 @@
 const {ccclass,property} = cc._decorator;
 
 @ccclass
-class NewClass extends mh.BaseComponent{
+class B extends mh.BaseComponent{
 
     constructor(){
         super();
@@ -26,4 +26,4 @@ class NewClass extends mh.BaseComponent{
     //onDestroy(){}
 }
 
-module.exports = NewClass;
+module.exports = B;

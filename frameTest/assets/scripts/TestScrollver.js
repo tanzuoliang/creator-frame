@@ -6,6 +6,7 @@
 
 const {ccclass,property} = cc._decorator;
 
+@ccclass
 class TestMediator extends mh.BaseMediator{
     constructor(view){
         super(null,view);

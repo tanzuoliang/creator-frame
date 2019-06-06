@@ -1,7 +1,7 @@
 declare module mh{
 	export const enum ViewMode{
 		ALONE = 1,
-		SHARE
+		SHARE = 
 	}
 	
 	export const enum ViewType{

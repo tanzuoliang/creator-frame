@@ -7,7 +7,7 @@
 const {ccclass,property} = cc._decorator;
 require("./core/index");
 
-// @ccclass
+@ccclass
 class MyMediator extends mh.BaseMediator{
     constructor(node){
         super(null,node);
