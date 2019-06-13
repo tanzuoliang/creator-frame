@@ -78,7 +78,7 @@ class ViewImp{
 
     init(){
         let container = cc.find("Canvas");
-        this.modueContainer = this.createContainer(container);
+        this.__modueContainer__ = this.createContainer(container);
         this.__uiContainer__ = this.createContainer(container);
         this.__panelContainer__ = this.createContainer(container);
         this.__alertContainer__ = this.createContainer(container);
@@ -253,7 +253,7 @@ class ModuleStack{
      * @param {*} name 注册用到的名字
      * @param {*} keepPath 是否保存回退路径
      */
-    show(name,keepPath = false){
+    show(name,keepPath = true){
         let view = null;
         if(cc.js.isString(name)){
             view = viewImp.showView(name);
@@ -275,20 +275,24 @@ class ModuleStack{
      * 回到上一个界面
      */
     back(moduleName = null){
+        this.__lastPanelName__ = null;
         // console.log("----- back ----" + this.__stack__.length)
+        if(this.__lastView__ && cc.isValid(this.__lastView__)){
+            viewImp.removeView(this.__lastView__);
+        }
+        this.__lastView__ = null;
+
         let view = null;
+        var mname = null;
         if(this.__stack__.length > 0){
             let name = this.__stack__.pop();
-            this.__lastPanelName__ = name;
+            mname = name;
         }else{
-            this.__lastPanelName__ = moduleName;
+            mname = moduleName;
         }
 
-        if(this.__lastPanelName__){
-            view = viewImp.showView(this.__lastPanelName__);
-        }else{
-            this.__lastView__ && viewImp.removeView(this.__lastView__);
-            this.__lastView__ = null;
+        if(mname){
+            view = this.show(mname);
         }
 
         return view;

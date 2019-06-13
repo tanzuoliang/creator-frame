@@ -2,12 +2,16 @@ const isWX = cc.sys.platform == cc.sys.WECHAT_GAME;
 const showLoading = title => {
     if(isWX){
         wx.showLoading({title,mask:true});
+    }else{
+        qg && qg.showToast({message : title});
     }
 };
 
 const hideLoading = () => {
     if(isWX){
         wx.hideLoading();
+    }else{
+        qg && qg.hideLoading();
     }
 };
 
@@ -15,6 +19,8 @@ const hideLoading = () => {
 const showToast = (title,icon = "none",duration = 2000) => {
     if(isWX){
         wx.showToast({title,icon,duration});
+    }else{
+        qg && qg.showToast({message : title});
     }
 };
 
@@ -24,8 +30,9 @@ window.mh_notify = {showLoading,hideLoading,showToast};
 
 //------------------------------------------------
 class BasePlatform{
-    constructor(parmas){
+    constructor(parmas,type){
         this.platformParmas = parmas;
+        this.platformType = type;
 
         this.initOnShare();
 
@@ -68,18 +75,7 @@ class BasePlatform{
 
     shareVideo(){};
 
-    login(){
-        showLoading("正在检测帐号");
-        wx.login({
-            success : res => {
-                this.loginPlatformSuccess(res);
-            },
-
-            fail : err => {
-                setTimeout(() => this.login(),1000);
-            }
-        });
-    }
+    login(){}
 
     loginPlatformSuccess(res){};
 
@@ -93,16 +89,75 @@ class BasePlatform{
     rvPause(){}
     rvResume(){}
     rvStop(){}
+
+    vibrateShort(){}
+
+    /**
+     * 使手机发生较长时间的振动（400 ms)
+     */
+    vibrateLong(){}
+
+    isAndroid(){}
+
+    getQuery(){ }
+    updateApp(callback = null){}
 }
+
+
+class H5 extends BasePlatform{
+    constructor(parmas,type){
+        super(parmas,type);
+    }
+
+    login(){
+        this.platformParmas.loginRes && this.platformParmas.loginRes(null);
+    }
+}
+
+class BaseWechat extends BasePlatform{
+    constructor(parmas,type){
+        super(parmas,type);
+    }
+
+    getQuery(){
+        return wx.getLaunchOptionsSync().query;
+    }
+
+    isAndroid(){
+        return wx.getSystemInfoSync().system.split(" ")[0] == "Android";
+    }
+
+    updateApp(callback = null){
+        const updateManager = wx.getUpdateManager();
+        updateManager.onCheckForUpdate( res => {
+            // 请求完新版本信息的回调
+            showToast(res.hasUpdate ? "有新版本" : "当前还没有新版本");
+            if(!res.hasUpdate){
+                callback && callback();
+            }
+        });
+
+        updateManager.onUpdateReady( () => {
+        // 新的版本已经下载好，调用 applyUpdate 应用新版本并重启
+            updateManager.applyUpdate();
+        });
+        
+        updateManager.onUpdateFailed(() => {
+        // 新的版本下载失败
+            callback && callback();
+        });
+    }
+}
+
 //------------------------------------------------
 
-class TTPlatform extends BasePlatform{
+class TTPlatform extends BaseWechat{
     /**
      * 
      * @param {*} parmas
      */
-    constructor(parmas){
-        super(parmas);
+    constructor(parmas,type){
+        super(parmas,type);
         this.recorder = tt.getGameRecorderManager();
         this.registerRVEvent();
         this.tempVideoPath = null;
@@ -205,7 +260,7 @@ class TTPlatform extends BasePlatform{
                 anonymousCode : this.anonymousCode,
                 version : this.platformParmas.version,
                 openid : res.openid || "",
-                "platform" : "tt"
+                "platform" : this.platformType
             },
             success: res => this.loginGameSuccess(res.data),
             fail : err => {
@@ -292,13 +347,13 @@ class TTPlatform extends BasePlatform{
 }
 
 //--------------------------------------------------------
-class WXPlatform extends BasePlatform{
+class WXPlatform extends BaseWechat{
     /**
      * 
      * @param {*} parmas
      */
-    constructor(parmas){
-        super(parmas);
+    constructor(parmas,type){
+        super(parmas,type);
         this.wxCode = null;
         
     }
@@ -326,6 +381,19 @@ class WXPlatform extends BasePlatform{
                 let now = Date.now();
                 let pass = now - this.onShareTime;
                 cc.director.emit("sharePass",pass,this.shareTicket);
+            }
+        });
+    }
+
+    login(){
+        showLoading("正在检测帐号");
+        wx.login({
+            success : res => {
+                this.loginPlatformSuccess(res);
+            },
+
+            fail : err => {
+                setTimeout(() => this.login(),1000);
             }
         });
     }
@@ -377,7 +445,7 @@ class WXPlatform extends BasePlatform{
                 encryptedData: res.encryptedData,//到时候这个就不要了
                 rawData : res.rawData,
                 version : this.platformParmas.version,
-                "platform" : "wx"
+                "platform" : this.platformType
             },
             success: res => this.loginGameSuccess(res.data),
             fail : err => {
@@ -398,7 +466,7 @@ class WXPlatform extends BasePlatform{
                 a : "wxguest",
                 code: this.wxCode,
                 version : this.platformParmas.version,
-                "platform" : "wx"
+                "platform" : this.platformType
             },
             success: res => this.loginGameSuccess(res.data),
             fail : err => {
@@ -412,44 +480,153 @@ class WXPlatform extends BasePlatform{
         wx.aldShareAppMessage(opts);
     }
 
+    vibrateShort(){wx.vibrateShort();}
+
+    /**
+     * 使手机发生较长时间的振动（400 ms)
+     */
+    vibrateLong(){wx.vibrateLong();}
+
+}
+
+class ViVOPlatform extends BasePlatform{
+    constructor(parmas,type){
+        super(parmas,type); 
+
+        this.__accessToken__ = null;
+    }
+
+    set accessToken(v){
+        this.__accessToken__ = v;
+        cc.sys.localStorage.setItem("accessToken",v);
+    }
+
+    get accessToken(v){
+        return this.__accessToken__ || (this.__accessToken__ = cc.sys.localStorage.getItem("accessToken"));
+    }
+
+    vibrateShort(){qg.vibrateShort();}
+
+    /**
+     * 使手机发生较长时间的振动（400 ms)
+     */
+    vibrateLong(){qg.vibrateLong();}
+
+    isAndroid(){return cc.sys.platform == cc.sys.ANDROID}
+
+    getQuery(){return {};}
+
+    updateApp(callback = null){
+        /**
+         * 0	无更新 
+         * 1	有更新 
+         * 2	检查失败
+         */
+        qg.onUpdateReady(res => {
+            if(res == 1) {
+                qg.applyUpdate();    
+            }else{
+                callback && callback();
+            }
+        });
+    }
+
+    login(){
+        let token = this.accessToken;
+        if(token){
+            qg.getProfile({
+                token,
+                success : res => this.loginPlatformSuccess(res),
+                fail : () => this.loginWithAuthorize()
+            });
+        }else{
+            this.loginWithAuthorize();
+        }
+    }
+
+    loginWithAuthorize(){
+        qg.authorize({
+            type : "token",
+            success : res => {
+                this.accessToken = res.accessToken;
+                qg.getProfile({
+                    token : res.accessToken,
+                    success : res => this.loginPlatformSuccess(res)
+                });
+            },
+
+            fail : () => this.loginGameSuccess()
+        });
+    }
+
+    loginPlatformSuccess(res){
+        qg.request({
+            url: connect_host,
+            method: "GET",
+            data: {
+                m : "Login",
+                a : "login",
+                openid : res.openid,
+                version : this.platformParmas.version,
+                "platform" : this.platformType
+            },
+            success: res => this.loginGameSuccess(res.data),
+            fail : err => {
+                // console.log(err)
+                setTimeout(() => this.loginPlatformSuccess(res),200);
+            }
+        });
+    }
 }
 
 const PLATFORM = cc.Enum({
+    H5 : "h5",
     WX : "wx",
     QQ : "qq",
-    TT : "tt"
+    TT : "tt",
+    VIVO : "qg"
 });
 
 function getPlatformManager(type,platformParmas){
     switch(type){
         case PLATFORM.WX:
         case PLATFORM.QQ:
-            return new WXPlatform(platformParmas);
-        break;
+                return new WXPlatform(platformParmas,type);
+            break;
 
         case PLATFORM.TT:
-            return new TTPlatform(platformParmas);
-        break;
+                return new TTPlatform(platformParmas,type);
+            break;
+
+        case PLATFORM.VIVO:
+                return new ViVOPlatform(platformParmas,type);
+            break;
+
+        case PLATFORM.H5:
+                return new H5(platformParmas,type);
+            break;
 
         default:
-            return new WXPlatform(platformParmas);
-        break;
+                return new WXPlatform(platformParmas,type);
+            break;
     }
 }
 
 
-class RewardVedio{
+class BaseVideo{
     constructor(adUnitId){
-
         this.videoLoaded = false;
         this.adUnitId = adUnitId;
         this.video = null;
-        // showLoading("努力加载中......");
     }
 
+    /**
+     * 创建视频广告组件 
+     */
+    buildVideo(){}
 
     build(){
-        this.video = wx.createRewardedVideoAd({adUnitId : this.adUnitId});
+        this.video = this.buildVideo();
         this.video.onClose(res => {
             this.videoLoaded = false;
             if (res && res.isEnded || res === undefined) {
@@ -487,24 +664,30 @@ class RewardVedio{
                 });
         });
     }
+
 }
 
-class BannerAd{
+class RewardVedio extends BaseVideo{
+    constructor(adUnitId){
+        super(adUnitId);
+    }
+    
+    buildVideo(){
+        return wx.createRewardedVideoAd({adUnitId : this.adUnitId});
+    }
+}
 
-    /**
-     * 
-     * @param {*} config {adUnitId : string,style : {left,top,width,height} }
-     */
+
+class BaseBannerAd{
     constructor(adUnitId,bannerWidth){
         this.banner = null;
         this.hasBanner = false;
         this.adUnitId = adUnitId;
         this.bannerWidth = bannerWidth;
-        // this.newAd(this.adUnitId,this.bannerWidth);
 
         this.onResizeHandler = res => {
             if(this.banner){
-                const {screenWidth,screenHeight} = wx.getSystemInfoSync();
+                const {screenWidth,screenHeight} = systemInfo;
                 this.banner.style.left = (screenWidth - res.width) * 0.5;
                 this.banner.style.top = screenHeight - res.height - 5;
                 console.log("RealSize = ",res);
@@ -516,14 +699,18 @@ class BannerAd{
         };
     }
 
+    get systemInfo(){}
+
+    buildBanner(){}
+
     newAd(adUnitId,width){
         this.adUnitId = adUnitId;
         this.hideAd();
-        const {screenWidth,screenHeight} = wx.getSystemInfoSync();
+        const {screenWidth,screenHeight} = systemInfo;
         const left = (screenWidth - width) * 0.5
         const top = screenHeight - 110;
         let style = {left,top,width};
-        this.banner = wx.createBannerAd({adUnitId,style});
+        this.banner = this.buildBanner(adUnitId,style);
 
         this.banner.onResize(this.onResizeHandler);
         this.banner.onError(this.onErrorHanlder);
@@ -546,7 +733,39 @@ class BannerAd{
         // this.newAd(this.adUnitId,this.bannerWidth);
     }
 }
+class BannerAd extends BaseBannerAd{
 
+    /**
+     * 
+     * @param {*} config {adUnitId : string,style : {left,top,width,height} }
+     */
+    constructor(adUnitId,bannerWidth){
+        super(adUnitId,bannerWidth);
+    }
+    get systemInfo(){return wx.getSystemInfoSync()}
+    buildBanner(adUnitId,style){return  wx.createBannerAd({adUnitId,style})}
+}
+
+
+class VivoBanner extends BaseBannerAd{
+    constructor(adUnitId,bannerWidth){
+        super(adUnitId,bannerWidth);
+    }
+
+    get systemInfo(){return qg.getSystemInfoSync()}
+    buildBanner(adUnitId,style){return  qg.createBannerAd({adUnitId,style})}
+
+}
+
+class VivoRevideo extends BaseVideo{
+    constructor(adUnitId){
+        super(adUnitId);
+    }
+    
+    buildVideo(){
+        return qg.createInterstitialAd({posId : this.adUnitId});
+    }
+}
 
 class PlatformConfig{
     constructor(){
@@ -578,19 +797,12 @@ class PlatformManager{
      */
     init(platformParmas,type = PLATFORM.WX){
         this.type = type;
-        if(isWX){
-            // this.platform = new WXPlatform(platformParmas);
+        if(cc.sys.isBrowser){
+            this.platform = new H5(platformParmas);
+        }
+        else{
             require("./../ald/ald-game")();
             this.platform = getPlatformManager(type,platformParmas);
-        }else{
-            //目前用来游戏客（也就是非平台）
-            if(platformParmas.loginRes){
-                // let http = require("./HTTP");
-                // http.getGuestInfo();
-                // http.get("Login","guest",res => platformParmas.loginRes(res));
-
-                platformParmas.loginRes(null);
-            }
         }
     }
 
@@ -661,22 +873,18 @@ class PlatformManager{
     }
 
     vibrateShort(){
-        isWX && wx.vibrateShort();
+        this.platform && this.platform.vibrateShort();
     }
 
     /**
      * 使手机发生较长时间的振动（400 ms)
      */
     vibrateLong(){
-        isWX && wx.vibrateLong();
+        this.platform && this.platform.vibrateLong();
     }
 
     getQuery(){
-        if(isWX){
-            return wx.getLaunchOptionsSync().query
-        }
-
-        return {};
+        return this.platform && this.platform.getQuery();
     }
 //----------------------------- 关于广告 --------------------------
     /**
@@ -689,7 +897,27 @@ class PlatformManager{
     initBanner(adUnitId,width = 320){
         if(isWX){
             this.banner = new BannerAd(adUnitId,width);
+        }else{
+            switch(this.type){
+                case PLATFORM.VIVO:
+                        this.banner = new VivoBanner(adUnitId,width);
+                    break;
+            }
+
         }
+
+        // if(){
+
+        // }
+
+        // switch(cc.sys.platform){
+        //     case cc.sys.WECHAT_GAME:
+        //         this.banner = new BannerAd(adUnitId,width);
+        //     break;
+            
+        //     case cc.sys.VIVO
+        // }
+
     }    
 
 
@@ -709,7 +937,7 @@ class PlatformManager{
     /**
      * 显示视频广告
      */
-    showAwardVedio(adUnitId){
+    showAwardVedio(){
         this.video && this.video.showVideo();
     }
 
@@ -720,6 +948,13 @@ class PlatformManager{
     initAwardVedio(adUnitId){
         if(isWX){
             this.video = new RewardVedio(adUnitId);
+        }else{
+            switch(this.type){
+                case PLATFORM.VIVO:
+                        this.video = new VivoRevideo(adUnitId);
+                    break;
+            }
+            
         }
     }
 
@@ -737,8 +972,10 @@ class PlatformManager{
     rvResume(){this.platform && this.platform.rvResume();}
     rvStop(){this.platform && this.platform.rvStop();}
 
-    isAndroid(){
-        return isWX && wx.getSystemInfoSync().system.split(" ")[0] == "Android";
+    isAndroid(){return this.platform && this.platform.isAndroid();}
+
+    updateApp(callback = null){
+        this.platform.updateApp(callback);
     }
 }
 

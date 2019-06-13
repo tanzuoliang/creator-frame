@@ -22,8 +22,11 @@ class TestMediator extends mh.BaseMediator{
                 // (this.node as mh.Group) 
                 let data = this.view.selectedItem.getData();
                 if(data == "15"){
+                    mh.moduleStack.show("SecPanel");
+                }else if(data == "12"){
                     mh.moduleStack.show("panel");
-                }else{
+                }
+                else{
                     mh.moduleStack.back();
                 } 
                 console.log("mediator select " + data);

@@ -8,7 +8,7 @@ const {ccclass,property} = cc._decorator;
 @ccclass
 class NewMediator extends mh.BaseMediator{
     constructor(node){
-        super(null,node);
+        super(new MyModel(),node);
         this.subscribe(["test"]);
     }
 
@@ -21,17 +21,54 @@ class NewMediator extends mh.BaseMediator{
     }
 }
 
+class MyModel extends mh.BaseModel{
+    constructor(name){
+        super(name);
+    }
+
+    buy(...t){
+        this.request("skin",{});
+    }
+}
+
+const ptConfig = {
+    wx : {
+        dev : "192.168.0.240:9381",
+        t0 : "https://www.miaohe-game.com/climb",
+        t1 : "https://www.kaifu2.com/climb"
+    },
+
+    qq : {
+        dev : "192.168.0.240:9381",
+        t0 : "https://www.miaohe-game.com/climbqq",
+        t1 : "https://games.miaohe-game.com/climbqq"
+    },
+
+    tt : {
+        dev : "192.168.0.240:9381",
+        t0 : "https://www.miaohe-game.com/climbtt",
+        t1 : "https://games.miaohe-game.com/climbtt"
+    },
+
+    qg : {
+        dev : "192.168.0.240:9381",
+        t0 : "https://www.miaohe-game.com/climbqq",
+        t1 : "https://games.miaohe-game.com/climbqq"
+    }
+};
+
+const getPtConfig = (type,t) => ptConfig[type][t];
 
 @ccclass
-class NewClass extends mh.BaseLoading{
+class View extends mh.BaseLoading{
 
     @property(cc.Label)
     progressLabel = null;
 
     constructor(){
         super();
-        this.platformFlag = mh.PLATFORM.TT;
-        this.setHost(require("./core/ptConfig")(this.platformFlag,"t0"));
+        this.platformFlag = mh.PLATFORM.VIVO;
+        this.setHost(getPtConfig(this.platformFlag,"t0"));
         new NewMediator(this);
     }
 
@@ -67,7 +104,7 @@ class NewClass extends mh.BaseLoading{
         let co = cc.find("Canvas");
         let node = cc.instantiate(mh.res.getItem("testNode",cc.Prefab));
         node.x = -40;
-        node.parent = mh.viewImp.alertContainer;
+        node.parent = mh.viewImp.uiCOntainer;
         node.zIndex = 2;
 
         node.on("test",() => console.log("test info"),this);
@@ -78,7 +115,7 @@ class NewClass extends mh.BaseLoading{
         let s = new cc.Node();
         s.addComponent(cc.Sprite);
         if (s) {
-            s.parent = mh.viewImp.uiCOntainer;
+            s.parent = mh.viewImp.alertContainer;
             s.zIndex = 1;
             s.color = new cc.Color(255, 255, 0);
             s.getComponent(cc.Sprite).useRemote("https://wx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTJMlgrlicZmcoFqd9UEBfxA0Vg3304CsiclHPJG6p66Cw2CmBV9wv9uG5hRx91jItP9tZQZmibEEU3wg/132");
@@ -93,6 +130,8 @@ class NewClass extends mh.BaseLoading{
             // http.setToken(res.data.token);
             // http.storeGuestInfo();
             // this.loginResponse(res);
+
+            console.log("---- back is ----" + res);
 
             res && !console.log(res) && mh.platformManager.setWXOpenId(res.data.openid);
             if(this.platformFlag == mh.PLATFORM.TT){
@@ -124,4 +163,4 @@ class NewClass extends mh.BaseLoading{
 }
 
 
-module.exports = NewClass;
+module.exports = View;

@@ -14,7 +14,9 @@ declare module mh{
 	export const enum PLATFORM{
 		WX = "wx",
 		QQ = "qq",
-		TT = "tt"
+		TT = "tt",
+		VIVO = "qg",
+		H5 = "h5"
 	}
 	
 	export class ViewImp{

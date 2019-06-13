@@ -9,7 +9,7 @@
   },
   "appKey": "",
   "appSecret": "",
-  "encryptJs": true,
+  "encryptJs": false,
   "excludeScenes": [
     "3297772a-ae52-4b12-a789-4342e1c0f991"
   ],

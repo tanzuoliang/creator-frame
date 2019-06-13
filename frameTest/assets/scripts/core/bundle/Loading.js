@@ -22,26 +22,8 @@ class BaseLoading extends mh.BaseScene{
     start(){
         super.start();
         if(this.isCheckUpdate()){
+            mh.platformManager.updateApp(() => this.loadResources());
 
-            const updateManager = wx.getUpdateManager();
-            updateManager.onCheckForUpdate( res => {
-                // 请求完新版本信息的回调
-                showToast(res.hasUpdate ? "有新版本" : "当前还没有新版本");
-                if(!res.hasUpdate){
-                    this.loadResources();
-                }
-            });
-
-            updateManager.onUpdateReady( () => {
-            // 新的版本已经下载好，调用 applyUpdate 应用新版本并重启
-                updateManager.applyUpdate();
-            });
-            
-            updateManager.onUpdateFailed(() => {
-            // 新的版本下载失败
-                showToast('新版本下载失败');
-                this.loadResources();
-            });
         }else{
             this.loadResources();
         }

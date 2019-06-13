@@ -1,0 +1,17 @@
+{
+  "certificatePath": "",
+  "deviceOrientation": "portrait",
+  "disabledMode": "disabled is-disabled",
+  "icon": "/Users/apple/Documents/study/creator/creator-frame/frameTest/assets/resources/res/btn_backoff_normal.png",
+  "logLevel": "debug",
+  "minPlatformVersion": "1020",
+  "name": "test",
+  "npmPath": "",
+  "package": "com.miaohe-test",
+  "privatePath": "",
+  "tinyPackageMode": false,
+  "tinyPackageServer": "",
+  "useDebugKey": true,
+  "versionCode": "1",
+  "versionName": "1.0.0"
+}

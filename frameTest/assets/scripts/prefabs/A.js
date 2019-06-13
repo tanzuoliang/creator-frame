@@ -28,7 +28,9 @@ class A extends mh.BaseComponent{
 
     //update(dt){}
 
-    //onDestroy(){}
+    onDestroy(){
+        console.log("---------- A destroy ------");
+    }
 }
 
 module.exports = A;
