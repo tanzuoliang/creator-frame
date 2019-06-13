@@ -7,7 +7,6 @@
 const {ccclass,property} = cc._decorator;
 require("./core/index");
 
-@ccclass
 class MyMediator extends mh.BaseMediator{
     constructor(node){
         super(null,node);
@@ -37,7 +36,7 @@ class GameInit{
         // console.log("----asdasdasdasdas------");
 
         cc.game.off("preloadComplete",this.init,this);
-        mh.viewImp.registerView("SecPanel","SecPanel","A",MyMediator);
+        mh.viewImp.registerView("SecPanel","SecPanel","A");
         mh.viewImp.registerView("panel",mh.res.getItem("panel",cc.Prefab),"B");
 
         //这里注册显示对象,能注册的都注册进来

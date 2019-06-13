@@ -364,20 +364,22 @@ let out = {
     Group : require("./bundle/Group"),
 }
 
+
 window.mh = out;
 
 function add(out,resource){
+    if(!resource)console.log("---fuck");
     for(let key in resource){
         out[key] = resource[key];
     }
 }
 
-out.BaseLoading = require("./bundle/Loading");
-
 add(out,require("./bundle/MVC"));
 add(out,require("./bundle/PlatformManager"));
 add(out,require("./bundle/BaseModule"));
 add(out,require("./bundle/BasePanel"));
+
+out.BaseLoading = require("./bundle/Loading");
 
 
 // window.mh = out;

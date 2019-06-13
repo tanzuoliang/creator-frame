@@ -492,7 +492,7 @@ class WXPlatform extends BaseWechat{
 class ViVOPlatform extends BasePlatform{
     constructor(parmas,type){
         super(parmas,type); 
-
+        console.log("----- init vivo platform -----");
         this.__accessToken__ = null;
     }
 
@@ -501,7 +501,7 @@ class ViVOPlatform extends BasePlatform{
         cc.sys.localStorage.setItem("accessToken",v);
     }
 
-    get accessToken(v){
+    get accessToken(){
         return this.__accessToken__ || (this.__accessToken__ = cc.sys.localStorage.getItem("accessToken"));
     }
 
@@ -532,6 +532,7 @@ class ViVOPlatform extends BasePlatform{
     }
 
     login(){
+        console.log("------ 开始Login----------");
         let token = this.accessToken;
         if(token){
             qg.getProfile({
@@ -545,6 +546,7 @@ class ViVOPlatform extends BasePlatform{
     }
 
     loginWithAuthorize(){
+        console.log("------ 开始获取授权请求-----------");
         qg.authorize({
             type : "token",
             success : res => {
@@ -555,11 +557,16 @@ class ViVOPlatform extends BasePlatform{
                 });
             },
 
-            fail : () => this.loginGameSuccess()
+            fail : () => {
+                console.log("------ 获取授权失败-----------");
+                this.loginGameSuccess();
+            }
         });
     }
 
     loginPlatformSuccess(res){
+        console.log("------ 获取授权成功-----------");
+        console.log("-----请求CP服务 " + connect_host);
         qg.request({
             url: connect_host,
             method: "GET",
@@ -588,13 +595,16 @@ const PLATFORM = cc.Enum({
 });
 
 function getPlatformManager(type,platformParmas){
+    console.log("---- build platform by type " + type)
     switch(type){
         case PLATFORM.WX:
         case PLATFORM.QQ:
+                require("./../ald/ald-game")();
                 return new WXPlatform(platformParmas,type);
             break;
 
         case PLATFORM.TT:
+                require("./../ald/ald-game")();
                 return new TTPlatform(platformParmas,type);
             break;
 
@@ -796,12 +806,12 @@ class PlatformManager{
      *  left:number,top:number}
      */
     init(platformParmas,type = PLATFORM.WX){
+        console.log("---- init platform by type " + type);
         this.type = type;
-        if(cc.sys.isBrowser){
+        if(false && cc.sys.isBrowser){
             this.platform = new H5(platformParmas);
         }
         else{
-            require("./../ald/ald-game")();
             this.platform = getPlatformManager(type,platformParmas);
         }
     }

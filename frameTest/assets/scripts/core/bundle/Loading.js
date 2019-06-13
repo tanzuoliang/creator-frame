@@ -1,7 +1,5 @@
 
-
 const {ccclass, property} = cc._decorator;
-require("./../index");
 @ccclass
 class BaseLoading extends mh.BaseScene{
     constructor(){
@@ -58,10 +56,7 @@ class BaseLoading extends mh.BaseScene{
         this.nextSceneName && cc.director.preloadScene(this.nextSceneName,  () => {
             cc.director.loadScene(this.nextSceneName);
         }); 
-    }
 
-    onDestroy(){
-        super.onDestroy();
         cc.director.off(mh.res.LOADING,this.updatePercent,this);
         cc.director.off(mh.res.COMPLETE,this.loadAllComplete,this);
     }

@@ -4,8 +4,10 @@
 *  
 **/
 
+require("./core/index");
+
 const {ccclass,property} = cc._decorator;
-@ccclass
+
 class NewMediator extends mh.BaseMediator{
     constructor(node){
         super(new MyModel(),node);
@@ -33,25 +35,31 @@ class MyModel extends mh.BaseModel{
 
 const ptConfig = {
     wx : {
-        dev : "192.168.0.240:9381",
+        dev : "http://192.168.0.240:9381",
         t0 : "https://www.miaohe-game.com/climb",
         t1 : "https://www.kaifu2.com/climb"
     },
 
     qq : {
-        dev : "192.168.0.240:9381",
+        dev : "http://192.168.0.240:9381",
         t0 : "https://www.miaohe-game.com/climbqq",
         t1 : "https://games.miaohe-game.com/climbqq"
     },
 
     tt : {
-        dev : "192.168.0.240:9381",
+        dev : "http://192.168.0.240:9381",
         t0 : "https://www.miaohe-game.com/climbtt",
         t1 : "https://games.miaohe-game.com/climbtt"
     },
 
     qg : {
-        dev : "192.168.0.240:9381",
+        dev : "http://192.168.0.240:9381",
+        t0 : "https://www.miaohe-game.com/climbqq",
+        t1 : "https://games.miaohe-game.com/climbqq"
+    },
+
+    h5 : {
+        dev : "http://192.168.0.240:9381",
         t0 : "https://www.miaohe-game.com/climbqq",
         t1 : "https://games.miaohe-game.com/climbqq"
     }
@@ -68,7 +76,7 @@ class View extends mh.BaseLoading{
     constructor(){
         super();
         this.platformFlag = mh.PLATFORM.VIVO;
-        this.setHost(getPtConfig(this.platformFlag,"t0"));
+        this.setHost(getPtConfig(this.platformFlag,"dev"));
         new NewMediator(this);
     }
 
@@ -107,10 +115,10 @@ class View extends mh.BaseLoading{
         node.parent = mh.viewImp.uiCOntainer;
         node.zIndex = 2;
 
-        node.on("test",() => console.log("test info"),this);
-        setTimeout(() => node.emit("test"),1000);
-        // setTimeout(() => node.destroy(),2000);
-        setTimeout(() => node.emit("test"),3000);
+        // node.on("test",() => console.log("test info"),this);
+        // setTimeout(() => node.emit("test"),1000);
+        // // setTimeout(() => node.destroy(),2000);
+        // setTimeout(() => node.emit("test"),3000);
 
         let s = new cc.Node();
         s.addComponent(cc.Sprite);

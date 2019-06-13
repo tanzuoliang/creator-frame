@@ -228,6 +228,7 @@ class __R__{
             }   
             else{
                 cc.director.emit(this.COMPLETE);
+                cc.log("---- complete after " + loadItem.url);
             }
         }
     }
@@ -491,7 +492,7 @@ class RemoteHeadLoader{
                     delete this.__cacheLoadingMap__[key];
                 });
             }else{
-                console.log("wait for loaded");
+                console.log("wait for loaded " + key);
             }
 
             callFunc && callList.push(callFunc);
