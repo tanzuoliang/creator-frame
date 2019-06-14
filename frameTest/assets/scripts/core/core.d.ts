@@ -173,6 +173,9 @@ declare module mh{
 	
 	abstract class BasePlatform{
 		initOnShare():void;
+		/**
+		 * 
+		 */
 		shareGame(shareTicket:string,online:number,title:string,imageUrl:string,query:Object):void;
 		callPlatformShare(opts:Object):void;
 		shareVideo():void;

@@ -8,6 +8,7 @@ class BaseLoading extends mh.BaseScene{
         this.loadedRes = 0;
         this.nextSceneName = null;
         this.platformFlag = mh.PLATFORM.WX;
+        this.platformConfig = null;
     }
 
     setHost(host){
@@ -19,6 +20,9 @@ class BaseLoading extends mh.BaseScene{
 
     start(){
         super.start();
+        this.platformConfig  = new mh.PlatformConfig();
+        this.fillPlatformConfig(this.platformConfig);
+        mh.platformManager.init(this.platformConfig,this.platformFlag);    
         if(this.isCheckUpdate()){
             mh.platformManager.updateApp(() => this.loadResources());
 
@@ -28,17 +32,18 @@ class BaseLoading extends mh.BaseScene{
     }
 
     loadResources(){
-        let config  = new mh.PlatformConfig();
-        this.fillPlatformConfig(config);
-        config.loginRes = (res) => {
-            config.shareList = res.data.shares;
-            http.setUid(res.data.uid);
-            http.setToken(res.data.token);
-            http.storeGuestInfo();
+        console.log("----  loadResources -----");
+        this.platformConfig.loginRes = (res) => {
+            if(res){
+                this.platformConfig.shareList = res.data.shares;
+                mh.http.setUid(res.data.uid);
+                mh.http.setToken(res.data.token);
+                mh.http.storeGuestInfo();
+            }
             this.loginResponse(res);
             this.execLoad();
         };
-        platformManager.init(config,this.platformFlag);
+        platformManager.run();
     }
 
 //-------------------------------------------- 
@@ -62,6 +67,9 @@ class BaseLoading extends mh.BaseScene{
     }
 
 //---------------------------------
+    /**
+     * 填充登入数据
+     */
     fillPlatformConfig(config){}   
     updatePercent(per){}
     loginResponse(res){}

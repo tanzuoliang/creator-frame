@@ -50,8 +50,10 @@ class HttpServer{
             }
         };
 
-        request.open(__METHOD__,__ROOT_URL__);
-        request.send(__METHOD__ == "GET" ? HttpServer.queryString(opts) : JSON.stringify(opts));
+        let sendinfo = __METHOD__ == "GET" ? HttpServer.queryString(opts) : JSON.stringify(opts);
+        console.log("sendinfo is " + sendinfo);
+        request.open(__METHOD__,__ROOT_URL__ + "?" + sendinfo);
+        request.send();
 
         _showRequestLoading && window.mh_notify.showLoading("加载中......");
     }
@@ -107,6 +109,10 @@ class HttpServer{
         }));
     }
 
+    static resetGuestInfo(){
+        cc.sys.localStorage.setItem(_httpStoreKey_,"");
+    }
+
     static getGuestInfo(){
         let info = cc.sys.localStorage.getItem(_httpStoreKey_);
         if(info){
@@ -117,5 +123,5 @@ class HttpServer{
     }
 }
 
-
+HttpServer.getGuestInfo();
 module.exports = HttpServer;

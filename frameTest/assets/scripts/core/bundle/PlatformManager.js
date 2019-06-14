@@ -1,4 +1,5 @@
 const isWX = cc.sys.platform == cc.sys.WECHAT_GAME;
+let qg = qg || null;
 const showLoading = title => {
     if(isWX){
         wx.showLoading({title,mask:true});
@@ -38,11 +39,18 @@ class BasePlatform{
 
         this.__openid__ = cc.sys.localStorage.getItem("platform_openid");
         //--------------------------
-        this.platformParmas.autoLogin ? this.login() : this.loginGameSuccess();
+        // this.platformParmas.autoLogin ? this.login() : this.loginGameSuccess();
         this.onShareTime = 0;
         this.shareMode = false;
         this.shareTicket = "";
 
+    }
+
+    /**
+     * 开始
+     */
+    run(){
+        this.platformParmas.autoLogin ? this.login() : this.loginGameSuccess();
     }
 
     set openid(v){
@@ -110,7 +118,13 @@ class H5 extends BasePlatform{
     }
 
     login(){
-        this.platformParmas.loginRes && this.platformParmas.loginRes(null);
+        try{
+            mh.http.get("Login","guest",{},res => {
+                this.platformParmas.loginRes && this.platformParmas.loginRes(res);
+            });
+        }catch(e){
+            this.platformParmas.loginRes && this.platformParmas.loginRes(null);
+        }
     }
 }
 
@@ -145,6 +159,23 @@ class BaseWechat extends BasePlatform{
         updateManager.onUpdateFailed(() => {
         // 新的版本下载失败
             callback && callback();
+        });
+    }
+
+    loginServer(data,suc){
+        data.version = this.platformParmas.version;
+        data.platform =  this.platformType;
+        data.fuid = this.getQuery().uid || -1;
+
+        wx.request({
+            url: connect_host,
+            method: "GET",
+            data,
+            success: res => suc(res.data),
+            fail : err => {
+                // console.log(err)
+                setTimeout(() => this.loginServer(data,suc),500);
+            }
         });
     }
 }
@@ -250,24 +281,13 @@ class TTPlatform extends BaseWechat{
             this.setStore();
         }
 
-        wx.request({
-            url: connect_host,
-            method: "GET",
-            data: {
-                m : "Login",
-                a : "login",
-                code: this.code,
-                anonymousCode : this.anonymousCode,
-                version : this.platformParmas.version,
-                openid : res.openid || "",
-                "platform" : this.platformType
-            },
-            success: res => this.loginGameSuccess(res.data),
-            fail : err => {
-                // console.log(err)
-                setTimeout(() => this.loginPlatformSuccess(res),200);
-            }
-        });
+        this.loginServer({
+            m : "Login",
+            a : "login",
+            code: this.code,
+            anonymousCode : this.anonymousCode,
+            openid : res.openid || "",
+        },res => his.loginGameSuccess(res));
     }
 
     shareVideo(shareTicket,title,videoPath,videoTopics=['']){
@@ -433,47 +453,24 @@ class WXPlatform extends BaseWechat{
 
     loginGameWithUserInfo(res){
     
-        wx.request({
-            url: connect_host,
-            method: "GET",
-            data: {
-                m : "Login",
-                a : "login",
-                code: this.wxCode,
-                iv: res.iv,
-                signature : res.signature,
-                encryptedData: res.encryptedData,//到时候这个就不要了
-                rawData : res.rawData,
-                version : this.platformParmas.version,
-                "platform" : this.platformType
-            },
-            success: res => this.loginGameSuccess(res.data),
-            fail : err => {
-                // console.log(err)
-                setTimeout(() => this.loginGameWithUserInfo(res),200);
-            }
-        });
-        
-        // this.loginGameSuccess(res);
+        this.loginServer({
+            m : "Login",
+            a : "login",
+            code: this.wxCode,
+            iv: res.iv,
+            signature : res.signature,
+            encryptedData: res.encryptedData,//到时候这个就不要了
+            rawData : res.rawData
+        },res => his.loginGameSuccess(res));
     }
 
     loginGameWithGuest(){
-        wx.request({
-                url: connect_host,
-                method: "GET",
-                data: {
-                m : "Login",
-                a : "wxguest",
-                code: this.wxCode,
-                version : this.platformParmas.version,
-                "platform" : this.platformType
-            },
-            success: res => this.loginGameSuccess(res.data),
-            fail : err => {
-                setTimeout(() => this.loginGameWithGuest(),200);
-            }
-        });
-        // this.loginGameSuccess();
+
+        this.loginServer({
+            m : "Login",
+            a : "wxguest",
+            code: this.wxCode
+        },res => this.loginGameSuccess(res));
     }
 
     callPlatformShare(opts){
@@ -580,7 +577,7 @@ class ViVOPlatform extends BasePlatform{
             success: res => this.loginGameSuccess(res.data),
             fail : err => {
                 // console.log(err)
-                setTimeout(() => this.loginPlatformSuccess(res),200);
+                setTimeout(() => this.loginPlatformSuccess(res),500);
             }
         });
     }
@@ -986,6 +983,10 @@ class PlatformManager{
 
     updateApp(callback = null){
         this.platform.updateApp(callback);
+    }
+
+    run(){
+        this.platform.run();
     }
 }
 

@@ -75,12 +75,9 @@ class View extends mh.BaseLoading{
 
     constructor(){
         super();
-        this.platformFlag = mh.PLATFORM.VIVO;
+        this.platformFlag = mh.PLATFORM.H5;
         this.setHost(getPtConfig(this.platformFlag,"dev"));
         new NewMediator(this);
-    }
-
-    loadResources(){
 
         mh.res.defaultPreloadResources = [
             {
@@ -96,9 +93,6 @@ class View extends mh.BaseLoading{
                 "type": 5
             }
         ];
-
-        // this.nextSceneName = "Main"; 
-        this.execLoad();
     }
 
     updatePercent(per){
@@ -130,39 +124,17 @@ class View extends mh.BaseLoading{
 
         }
 
-        let config  = new mh.PlatformConfig();
-        this.fillPlatformConfig(config);
-        config.loginRes = (res) => {
-            // config.shareList = res.data.shares;
-            // http.setUid(res.data.uid);
-            // http.setToken(res.data.token);
-            // http.storeGuestInfo();
-            // this.loginResponse(res);
+    }
 
-            console.log("---- back is ----" + res);
-
-            res && !console.log(res) && mh.platformManager.setWXOpenId(res.data.openid);
-            if(this.platformFlag == mh.PLATFORM.TT){
-                mh.platformManager.initAwardVedio("4ag5af1a8kanf54224");
-            }else{
-                mh.platformManager.initBanner("adunit-8b6dee35e2462bb3");
-            }
-            
-            this.loginSuccess();
-
-        };
-
-        mh.platformManager.init(config,this.platformFlag);
+    /**
+     * 填充登入数据
+     */
+    fillPlatformConfig(config){
 
     }
 
-    loginSuccess(){
-        // platformManager.showAwardVedio();
-        mh.platformManager.rvStart(11);
-        setTimeout(() => {
-            console.log("------ shareVideo-------");
-            mh.platformManager.shareVideo("haha","haha");
-        },13000);
+    loginResponse(res){
+        console.log("adadadadada hahaha");
     }
 
     //update(dt){}
